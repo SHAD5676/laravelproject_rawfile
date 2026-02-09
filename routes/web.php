@@ -1,84 +1,77 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EmployeeController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
+/* Home */
 Route::get('/', function () {
     return view('welcome');
 });
 
+/* User Dashboard */
 Route::get('/dashboard', function () {
     return view('backend.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+/* User Profile */
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    // Route::get('/categories', [CategoryController::class, 'index'])->name('category.all');
-    // Route::get('/category/new', [CategoryController::class, 'create'])->name('category.new');
-    // Route::get('/category/edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
-    // Route::post('/category/delete/{id}', [CategoryController::class, 'destroy'])->name('category.edit');
-    Route::resource('category', CategoryController::class);
-    Route::resource('product', ProductController::class);
-});
-// Admin Loin, Logout, Registration
-Route::middleware('guest:admin')->prefix('admin')->group( function () {
-
-    Route::get('login', [App\Http\Controllers\Auth\Admin\LoginController::class, 'create'])->name('admin.login');
-    Route::post('login', [App\Http\Controllers\Auth\Admin\LoginController::class, 'store']);
-
-    //Route::get('register', [App\Http\Controllers\Auth\Admin\RegisterController::class, 'create'])->name('admin.register');
-    //Route::post('register', [App\Http\Controllers\Auth\Admin\RegisterController::class, 'store']);
-
 });
 
-Route::middleware('auth:admin')->prefix('admin')->group( function () {
 
-    Route::post('logout', [App\Http\Controllers\Auth\Admin\LoginController::class, 'destroy'])->name('admin.logout');
-    
-    Route::view('/dashboard','backend.admin_dashboard');
+/* ================= ADMIN ================= */
+Route::prefix('admin')->group(function () {
+
+    // login
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('login', [App\Http\Controllers\Auth\Admin\LoginController::class, 'create'])->name('admin.login');
+        Route::post('login', [App\Http\Controllers\Auth\Admin\LoginController::class, 'store']);
+    });
+
+    // admin protected
+    Route::middleware('auth:admin')->group(function () {
+        Route::post('logout', [App\Http\Controllers\Auth\Admin\LoginController::class, 'destroy'])->name('admin.logout');
+        Route::view('dashboard', 'backend.admin_dashboard');
+
+        // ✅ EMPLOYEE CRUD (ADMIN ONLY)
+        Route::resource('employees', EmployeeController::class);
+    });
 
 });
-// Admin Loin, Logout, Registration
 
 
-// Manager Loin, Logout, Registration
-Route::middleware('guest:manager')->prefix('manager')->group( function () {
-    Route::get('login', [App\Http\Controllers\Auth\Manager\LoginController::class, 'create'])->name('manager.login');
-    Route::post('login', [App\Http\Controllers\Auth\Manager\LoginController::class, 'store']);
-    //Route::get('register', [App\Http\Controllers\Auth\Admin\RegisterController::class, 'create'])->name('admin.register');
-    //Route::post('register', [App\Http\Controllers\Auth\Admin\RegisterController::class, 'store']);
-});
-Route::middleware('auth:manager')->prefix('manager')->group( function () {
-    Route::post('logout', [App\Http\Controllers\Auth\Manager\LoginController::class, 'destroy'])->name('manager.logout');
-    Route::view('/dashboard','backend.manager_dashboard');
+/* ================= MANAGER ================= */
+Route::prefix('manager')->group(function () {
+
+    Route::middleware('guest:manager')->group(function () {
+        Route::get('login', [App\Http\Controllers\Auth\Manager\LoginController::class, 'create'])->name('manager.login');
+        Route::post('login', [App\Http\Controllers\Auth\Manager\LoginController::class, 'store']);
+    });
+
+    Route::middleware('auth:manager')->group(function () {
+        Route::post('logout', [App\Http\Controllers\Auth\Manager\LoginController::class, 'destroy'])->name('manager.logout');
+        Route::view('dashboard', 'backend.manager_dashboard');
+    });
+
 });
 
-// Employee Loin, Logout, Registration
-Route::middleware('guest:employee')->prefix('employee')->group( function () {
-    Route::get('login', [App\Http\Controllers\Auth\Employee\LoginController::class, 'create'])->name('employee.login');
-    Route::post('login', [App\Http\Controllers\Auth\Employee\LoginController::class, 'store']);
-    //Route::get('register', [App\Http\Controllers\Auth\Admin\RegisterController::class, 'create'])->name('admin.register');
-    //Route::post('register', [App\Http\Controllers\Auth\Admin\RegisterController::class, 'store']);
+
+/* ================= EMPLOYEE ================= */
+Route::prefix('employee')->group(function () {
+
+    Route::middleware('guest:employee')->group(function () {
+        Route::get('login', [App\Http\Controllers\Auth\Employee\LoginController::class, 'create'])->name('employee.login');
+        Route::post('login', [App\Http\Controllers\Auth\Employee\LoginController::class, 'store']);
+    });
+
+    Route::middleware('auth:employee')->group(function () {
+        Route::post('logout', [App\Http\Controllers\Auth\Employee\LoginController::class, 'destroy'])->name('employee.logout');
+        Route::view('dashboard', 'backend.employee_dashboard');
+    });
+
 });
-Route::middleware('auth:employee')->prefix('employee')->group( function () {
-    Route::post('logout', [App\Http\Controllers\Auth\Employee\LoginController::class, 'destroy'])->name('employee.logout');
-    Route::view('/dashboard','backend.employee_dashboard');
-});
-// Manager Loin, Logout, Registration
 
 require __DIR__.'/auth.php';
