@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class LoginController extends Controller
 {
     public function create(){
-        return view ('auth.manager_login');
+        return view('auth.login', ['loginRole' => 'manager']);
     }
 
     public function store(Request $request){

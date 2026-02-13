@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,6 +21,18 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+
+        // Create admin users
+        DB::table('admins')->insert([
+            [
+                'name' => 'Super Admin',
+                'email' => 'admin@example.com',
+                'password' => Hash::make('Admin1205'),
+                'remember_token' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 
     /**

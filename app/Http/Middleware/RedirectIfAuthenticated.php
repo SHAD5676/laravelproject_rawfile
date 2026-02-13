@@ -10,6 +10,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
+    protected function redirectToForGuard(?string $guard): string
+    {
+        return match ($guard) {
+            'admin' => RouteServiceProvider::ADMIN_DASHBOARD,
+            'manager' => RouteServiceProvider::MANAGER_DASHBOARD,
+            'employee' => RouteServiceProvider::EMPLOYEE_DASHBOARD,
+            default => RouteServiceProvider::HOME,
+        };
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -21,7 +31,7 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                return redirect($this->redirectToForGuard($guard));
             }
         }
 
