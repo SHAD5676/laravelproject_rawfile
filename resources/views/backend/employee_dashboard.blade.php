@@ -71,7 +71,7 @@ s0.parentNode.insertBefore(s1,s0);
 
     <!-- Content Header (Page header) -->
     <div class="content-header sty-one">
-        <h1>Manager Dashboard</h1>
+        <h1>Employee Dashboard</h1>
         <ol class="breadcrumb">
             <li><a href="{{url('')}}/#">Home</a></li>
             <li><i class="fa fa-angle-right"></i> Dashboard</li>

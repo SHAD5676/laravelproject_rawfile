@@ -1,25 +1,27 @@
 <?php
 
-namespace App\Http\Controllers\Auth\Employee;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class LoginController extends Controller
+class EmployeeController extends Controller
 {
-    public function create() {
+
+    public function create()
+    {
         return view('auth.employee_login');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
-            'email' => ['required','email','max:255'],
-            'password' => ['required','string'],
+            'email' => ['required', 'email', 'max:255'],
+            'password' => ['required', 'string'],
         ]);
 
-        if (!Auth::guard('employee')->attempt($request->only('email','password'), $request->filled('remember'))) {
+        if (!Auth::guard('employee')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
             throw ValidationException::withMessages([
                 'email' => 'Credentials do not match our records.'
             ]);
@@ -29,7 +31,8 @@ class LoginController extends Controller
         return redirect()->intended('/employee/dashboard');
     }
 
-    public function destroy(Request $request) {
+    public function destroy(Request $request)
+    {
         Auth::guard('employee')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
