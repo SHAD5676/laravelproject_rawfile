@@ -9,21 +9,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('employees', function (Blueprint $table) {
-            $table->id();
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->string('phone')->nullable();
+    $table->string('designation')->nullable();
+    $table->string('department')->nullable();
+    $table->string('password');
+    $table->timestamps();
+});
 
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('phone')->nullable();
-
-           
-            $table->string('designation')->nullable();
-            $table->string('department')->nullable();
-
-           
-            $table->string('password');
-
-            $table->timestamps();
-        });
     }
 
     public function down()

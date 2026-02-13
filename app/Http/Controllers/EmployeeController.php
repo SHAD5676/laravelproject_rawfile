@@ -1,106 +1,38 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Auth\Employee;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
-class EmployeeController extends Controller
+class LoginController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): View
-    {
-        $employees = Employee::latest()->paginate(5);
-
-        return view('admin.employees.index', compact('employees'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
+    public function create() {
+        return view('auth.employee_login');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View
-    {
-        return view('admin.employees.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
+    public function store(Request $request) {
         $request->validate([
-            'name'        => 'required',
-            'email'       => 'required|email|unique:employees',
-            'phone'       => 'nullable',
-            'designation' => 'nullable',
-            'password'    => 'required|min:6',
+            'email' => ['required','email','max:255'],
+            'password' => ['required','string'],
         ]);
 
-        Employee::create([
-            'name'        => $request->name,
-            'email'       => $request->email,
-            'phone'       => $request->phone,
-            'designation' => $request->designation,
-            'password'    => bcrypt($request->password),
-        ]);
+        if (!Auth::guard('employee')->attempt($request->only('email','password'), $request->filled('remember'))) {
+            throw ValidationException::withMessages([
+                'email' => 'Credentials do not match our records.'
+            ]);
+        }
 
-        return redirect()->route('admin.employees.index')
-            ->with('success', 'Employee created successfully.');
+        $request->session()->regenerate();
+        return redirect()->intended('/employee/dashboard');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Employee $employee): View
-    {
-        return view('admin.employees.show', compact('employee'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Employee $employee): View
-    {
-        return view('admin.employees.edit', compact('employee'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Employee $employee): RedirectResponse
-    {
-        $request->validate([
-            'name'        => 'required',
-            'email'       => 'required|email|unique:employees,email,' . $employee->id,
-            'phone'       => 'nullable',
-            'designation' => 'nullable',
-        ]);
-
-        $employee->update($request->only([
-            'name',
-            'email',
-            'phone',
-            'designation'
-        ]));
-
-        return redirect()->route('admin.employees.index')
-            ->with('success', 'Employee updated successfully');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Employee $employee): RedirectResponse
-    {
-        $employee->delete();
-
-        return redirect()->route('admin.employees.index')
-            ->with('success', 'Employee deleted successfully');
+    public function destroy(Request $request) {
+        Auth::guard('employee')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/employee/login');
     }
 }

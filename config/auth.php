@@ -50,7 +50,7 @@ return [
         ],
          'employee' => [
             'driver' => 'session',
-            'provider' => 'employees', //managers Table
+            'provider' => 'employees', //employees Table
         ],
     ],
 
