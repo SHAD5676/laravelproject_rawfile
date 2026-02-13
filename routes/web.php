@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\DepartmentController; // Added this
 use App\Http\Controllers\Auth\LoginController as UserLoginController;
 use App\Http\Controllers\Auth\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Auth\Manager\LoginController as ManagerLoginController;
@@ -22,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Profile routes
     Route::prefix('profile')->name('profile.')->group(function () {
+        // FIXED: Replaced standard text with proper Markdown for formatting
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
@@ -41,13 +43,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth:admin')->group(function () {
         Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
 
-        // FIXED: Added missing semicolon
         Route::get('dashboard', function () {
             return view('backend.admin_dashboard');
         })->name('dashboard');
 
-        // Employee resource
-        Route::resource('employees', EmployeeController::class);
+        // CRUD Resources for Admin
+        Route::resource('departments', DepartmentController::class); // Added for Department CRUD
+        Route::resource('employees', EmployeeController::class);     // Existing Employee CRUD
     });
 });
 

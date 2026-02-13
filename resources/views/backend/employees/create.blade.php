@@ -1,80 +1,89 @@
-@extends('backend.layouts.master')
+@extends ("backend.layouts.master")
 
-@section('content')
-
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-            <h2>Add New Employee</h2>
-        </div>
-        <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('admin.employees.index') }}">
-                Back
-            </a>
-        </div>
-    </div>
-</div>
-
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-<form action="{{ route('admin.employees.store') }}" method="POST">
-    @csrf
-
-    <div class="row">
-
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Name:</strong>
-                <input type="text" name="name" class="form-control" placeholder="Employee Name">
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Email:</strong>
-                <input type="email" name="email" class="form-control" placeholder="Employee Email">
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Phone:</strong>
-                <input type="text" name="phone" class="form-control" placeholder="Phone Number">
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Designation:</strong>
-                <input type="text" name="designation" class="form-control" placeholder="Designation">
-            </div>
-        </div>
-
-        {{-- employee multi-auth password --}}
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Password:</strong>
-                <input type="password" name="password" class="form-control" placeholder="Password">
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-            <button type="submit" class="btn btn-primary">
-                Submit
-            </button>
-        </div>
-
-    </div>
-
-</form>
-
+@section("head")
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Add Employee | Biz Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{url('')}}/dist/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{url('')}}/dist/css/style.css">
+  <link rel="stylesheet" href="{{url('')}}/dist/css/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="{{url('')}}/dist/css/skins/_all-skins.min.css">
+</head>
 @endsection
+
+@section("content")
+<div class="content-wrapper">
+  <div class="content-header sty-one">
+    <h1 class="text-white">Add Employee</h1>
+    <ol class="breadcrumb">
+      <li><a href="{{ route('admin.dashboard') }}">Home</a></li>
+      <li><i class="fa fa-angle-right"></i> Add Employee</li>
+    </ol>
+  </div>
+
+  <div class="content">
+    <div class="card card-outline">
+      <div class="card-header bg-blue">
+        <h5 class="text-white m-b-0">Employee Entry Form</h5>
+      </div>
+      <div class="card-body">
+        
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="post" action="{{ route('admin.employees.store') }}">
+          @csrf
+          <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Full Name *</label>
+                <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Email Address *</label>
+                <input type="email" name="email" value="{{ old('email') }}" class="form-control" required>
+              </div>
+              
+              <div class="col-md-6 form-group">
+                <label>Password *</label>
+                <input type="password" name="password" class="form-control" required minlength="8">
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Department *</label>
+                <select name="department_id" class="form-control" required>
+                    <option value="">-- Select Department --</option>
+                    @foreach($departments as $dept)
+                        <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->name }}
+                        </option>
+                    @endforeach
+                </select>
+              </div>
+
+              <div class="col-md-6 form-group">
+                <label>Designation</label>
+                <input type="text" name="designation" value="{{ old('designation') }}" class="form-control" placeholder="e.g. Software Engineer">
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phone" value="{{ old('phone') }}" class="form-control">
+              </div>
+          </div>
+
+          <button type="submit" class="btn btn-success mt-3">Save Employee</button>
+          <a href="{{ route('admin.employees.index') }}" class="btn btn-secondary mt-3">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection
+
