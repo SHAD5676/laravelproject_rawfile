@@ -33,13 +33,13 @@
 
         <ul class="treeview-menu">
           <li>
-            <a href="{{ route('admin.employees.index') }}">
+            <a href="{{ route('employees.index') }}">
               <i class="fa fa-angle-right"></i> All Employees
             </a>
           </li>
 
           <li>
-            <a href="{{ route('admin.employees.create') }}">
+            <a href="{{ route('employees.create') }}">
               <i class="fa fa-angle-right"></i> Add Employee
             </a>
           </li>

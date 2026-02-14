@@ -36,7 +36,7 @@ Route::prefix('admin')->group(function () {
         Route::post('logout', [App\Http\Controllers\Auth\Admin\LoginController::class, 'destroy'])->name('admin.logout');
         Route::view('dashboard', 'backend.admin_dashboard');
 
-        // ✅ EMPLOYEE CRUD (ADMIN ONLY)
+        //  EMPLOYEE CRUD 
         Route::resource('employees', EmployeeController::class);
     });
 
