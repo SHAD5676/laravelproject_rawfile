@@ -103,7 +103,7 @@
               <li>  
                 <form action="{{ route('employee.logout') }}" method="post">
                   @csrf
-                  <button type="submit"><i class="fa fa-power-off"></i>Admin Logout</button>
+                  <button type="submit"><i class="fa fa-power-off"></i>Employee Logout</button>
                 </form>
               </li>
             </ul>

@@ -3,75 +3,90 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\DepartmentController; // Added this
+use App\Http\Controllers\Auth\LoginController as UserLoginController;
+use App\Http\Controllers\Auth\Admin\LoginController as AdminLoginController;
+use App\Http\Controllers\Auth\Manager\LoginController as ManagerLoginController;
+use App\Http\Controllers\Auth\Employee\LoginController as EmployeeLoginController;
 
-/* Home */
+/* ================= PUBLIC ROUTES ================= */
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-/* User Dashboard */
-Route::get('/dashboard', function () {
-    return view('backend.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+/* ================= USER (WEB) ROUTES ================= */
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('backend.dashboard');
+    })->name('dashboard');
 
-/* User Profile */
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Profile routes
+    Route::prefix('profile')->name('profile.')->group(function () {
+        // FIXED: Replaced standard text with proper Markdown for formatting
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
 });
 
+/* ================= ADMIN ROUTES ================= */
+Route::prefix('admin')->name('admin.')->group(function () {
 
-/* ================= ADMIN ================= */
-Route::prefix('admin')->group(function () {
-
-    // login
+    // Guest routes (not logged in as admin)
     Route::middleware('guest:admin')->group(function () {
-        Route::get('login', [App\Http\Controllers\Auth\Admin\LoginController::class, 'create'])->name('admin.login');
-        Route::post('login', [App\Http\Controllers\Auth\Admin\LoginController::class, 'store']);
+        Route::get('login', [AdminLoginController::class, 'create'])->name('login');
+        Route::post('login', [AdminLoginController::class, 'store']);
     });
 
-    // admin protected
+    // Protected routes (logged in as admin)
     Route::middleware('auth:admin')->group(function () {
-        Route::post('logout', [App\Http\Controllers\Auth\Admin\LoginController::class, 'destroy'])->name('admin.logout');
-        Route::view('dashboard', 'backend.admin_dashboard');
+        Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
 
-        //  EMPLOYEE CRUD 
+        Route::get('dashboard', function () {
+            return view('backend.admin_dashboard');
+        })->name('dashboard');
+
+        // ✅ EMPLOYEE CRUD (ADMIN ONLY)
         Route::resource('employees', EmployeeController::class);
     });
-
 });
 
+/* ================= MANAGER ROUTES ================= */
+Route::prefix('manager')->name('manager.')->group(function () {
 
-/* ================= MANAGER ================= */
-Route::prefix('manager')->group(function () {
-
+    // Guest routes (not logged in as manager)
     Route::middleware('guest:manager')->group(function () {
-        Route::get('login', [App\Http\Controllers\Auth\Manager\LoginController::class, 'create'])->name('manager.login');
-        Route::post('login', [App\Http\Controllers\Auth\Manager\LoginController::class, 'store']);
+        Route::get('login', [ManagerLoginController::class, 'create'])->name('login');
+        Route::post('login', [ManagerLoginController::class, 'store']);
     });
 
+    // Protected routes (logged in as manager)
     Route::middleware('auth:manager')->group(function () {
-        Route::post('logout', [App\Http\Controllers\Auth\Manager\LoginController::class, 'destroy'])->name('manager.logout');
-        Route::view('dashboard', 'backend.manager_dashboard');
+        Route::post('logout', [ManagerLoginController::class, 'destroy'])->name('logout');
+        Route::get('dashboard', function () {
+            return view('backend.manager_dashboard');
+        })->name('dashboard');
     });
-
 });
 
+/* ================= EMPLOYEE ROUTES ================= */
+Route::prefix('employee')->name('employee.')->group(function () {
 
-/* ================= EMPLOYEE ================= */
-Route::prefix('employee')->group(function () {
-
+    // Guest routes (not logged in as employee)
     Route::middleware('guest:employee')->group(function () {
-        Route::get('login', [App\Http\Controllers\Auth\Employee\LoginController::class, 'create'])->name('employee.login');
-        Route::post('login', [App\Http\Controllers\Auth\Employee\LoginController::class, 'store']);
+        Route::get('login', [EmployeeLoginController::class, 'create'])->name('login');
+        Route::post('login', [EmployeeLoginController::class, 'store']);
     });
 
+    // Protected routes (logged in as employee)
     Route::middleware('auth:employee')->group(function () {
-        Route::post('logout', [App\Http\Controllers\Auth\Employee\LoginController::class, 'destroy'])->name('employee.logout');
-        Route::view('dashboard', 'backend.employee_dashboard');
+        Route::post('logout', [EmployeeLoginController::class, 'destroy'])->name('logout');
+        Route::get('dashboard', function () {
+            return view('backend.employee_dashboard');
+        })->name('dashboard');
     });
-
 });
 
-require __DIR__.'/auth.php';
+// Include authentication routes
+require __DIR__ . '/auth.php';
